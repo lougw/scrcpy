@@ -16,7 +16,7 @@ public final class InputManager {
 
     private final IInterface manager;
     private Method injectInputEventMethod;
-
+    private static boolean isMultiScreenDisplay = false;
     public InputManager(IInterface manager) {
         this.manager = manager;
     }
@@ -25,13 +25,21 @@ public final class InputManager {
         if (injectInputEventMethod == null) {
             injectInputEventMethod = manager.getClass().getMethod("injectInputEvent", InputEvent.class, int.class);
         }
+        if (injectInputEventMethod == null) {
+            injectInputEventMethod = manager.getClass().getMethod("injectInputEvent", InputEvent.class, int.class, int.class);
+            isMultiScreenDisplay = true;
+        }
         return injectInputEventMethod;
     }
 
     public boolean injectInputEvent(InputEvent inputEvent, int mode) {
         try {
             Method method = getInjectInputEventMethod();
-            return (boolean) method.invoke(manager, inputEvent, mode);
+            if (isMultiScreenDisplay) {
+                return (boolean) method.invoke(manager, inputEvent, 0, mode);
+            } else {
+                return (boolean) method.invoke(manager, inputEvent, mode);
+            }
         } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             Ln.e("Could not invoke method", e);
             return false;
