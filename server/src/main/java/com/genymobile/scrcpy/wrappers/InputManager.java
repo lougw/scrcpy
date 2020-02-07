@@ -22,8 +22,12 @@ public final class InputManager {
     }
 
     private Method getInjectInputEventMethod() throws NoSuchMethodException {
-        if (injectInputEventMethod == null) {
-            injectInputEventMethod = manager.getClass().getMethod("injectInputEvent", InputEvent.class, int.class);
+        try {
+            if (injectInputEventMethod == null) {
+                injectInputEventMethod = manager.getClass().getMethod("injectInputEvent", InputEvent.class, int.class);
+            }
+        } catch (NoSuchMethodException e) {
+            Ln.e("no two parameters method");
         }
         if (injectInputEventMethod == null) {
             injectInputEventMethod = manager.getClass().getMethod("injectInputEvent", InputEvent.class, int.class, int.class);
