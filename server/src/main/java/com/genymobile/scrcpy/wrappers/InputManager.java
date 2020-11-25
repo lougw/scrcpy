@@ -17,6 +17,9 @@ public final class InputManager {
     private final IInterface manager;
     private Method injectInputEventMethod;
     private static boolean isMultiScreenDisplay = false;
+
+    private static Method setDisplayIdMethod;
+
     public InputManager(IInterface manager) {
         this.manager = manager;
     }
@@ -46,6 +49,24 @@ public final class InputManager {
             }
         } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             Ln.e("Could not invoke method", e);
+            return false;
+        }
+    }
+
+    private static Method getSetDisplayIdMethod() throws NoSuchMethodException {
+        if (setDisplayIdMethod == null) {
+            setDisplayIdMethod = InputEvent.class.getMethod("setDisplayId", int.class);
+        }
+        return setDisplayIdMethod;
+    }
+
+    public static boolean setDisplayId(InputEvent inputEvent, int displayId) {
+        try {
+            Method method = getSetDisplayIdMethod();
+            method.invoke(inputEvent, displayId);
+            return true;
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+            Ln.e("Cannot associate a display id to the input event", e);
             return false;
         }
     }
